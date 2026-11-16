@@ -38,12 +38,14 @@ I_DISK=$'\xEF\x82\xA0'    # hdd
 ARROW=$'\xE2\x9E\x9C'     # ➜
 DOT=$'\xE2\x97\x8F'       # ●
 
-# getting info
+# getting info about user and host
 user=$(whoami)
 host=$(hostname -s)
 
+# os thingies
 os="$(sw_vers -productName) $(sw_vers -productVersion) Snow Leopard"
 kernel="$(uname -s) $(uname -r) ($(uname -m))"
+init=$(basename "$(ps -p 1 -o comm=)")
 
 # uptime
 boot=$(sysctl -n kern.boottime | sed 's/.*sec = \([0-9]*\),.*/\1/')
@@ -108,7 +110,7 @@ INFO[1]=$(printf '%*s' $len '' | tr ' ' '-')
 
 row 34    "$I_OS"   "$os"
 row 35    "$I_KRN"  "$kernel"
-row 31    "$I_INIT" "launchd"
+row 31    "$I_INIT" "$init"
 row 32    "$I_UP"   "$up"
 row 33    "$I_PKG"  "$pk"
 row 36    "$I_SH"   "$shell"
