@@ -1,0 +1,181 @@
+#!/bin/bash
+# snowfetch - Mac OS X Snow Leopard fetch (bash 3.2)
+
+# snowfetch
+# Copyright (C) 2026 m4china
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ESC=$'\033'
+RS="${ESC}[0m"
+BD="${ESC}[1m"
+col() { printf '%s[%sm' "$ESC" "$1"; }
+
+# Nerd Font ikonlari (bash 3.2'de \u yok, UTF-8 byte'lari ile)
+I_OS=$'\xEF\x85\xB9'      # apple
+I_KRN=$'\xEF\x80\x93'     # cog
+I_INIT=$'\xEF\x80\x91'    # power_off
+I_UP=$'\xEF\x80\x97'      # clock
+I_PKG=$'\xEF\x86\xB2'     # cube
+I_SH=$'\xEF\x84\xA0'      # terminal
+I_DE=$'\xEF\x8B\x90'      # window
+I_TERM=$'\xEF\x84\x9C'    # keyboard
+I_CPU=$'\xEF\x8B\x9B'     # microchip
+I_GPU=$'\xEF\x84\x88'     # desktop
+I_MEM=$'\xEF\x87\x80'     # database
+I_DISK=$'\xEF\x82\xA0'    # hdd
+ARROW=$'\xE2\x9E\x9C'     # ➜
+DOT=$'\xE2\x97\x8F'       # ●
+
+# bilgi toplama
+user=$(whoami)
+host=$(hostname -s)
+
+os="$(sw_vers -productName) $(sw_vers -productVersion) Snow Leopard"
+kernel="$(uname -s) $(uname -r) ($(uname -m))"
+
+# uptime
+boot=$(sysctl -n kern.boottime | sed 's/.*sec = \([0-9]*\),.*/\1/')
+s=$(( $(date +%s) - boot ))
+d=$(( s / 86400 )); h=$(( (s % 86400) / 3600 )); m=$(( (s % 3600) / 60 ))
+up=""
+[ $d -gt 0 ] && up="$d days, "
+[ $h -gt 0 ] && up="$up$h hours, "
+up="$up$m mins"
+
+# paketler
+pk=""
+if [ -d /opt/local/var/macports/software ]; then
+  n=$(ls /opt/local/var/macports/software 2>/dev/null | wc -l | tr -d ' ')
+  pk="$n (macports)"
+fi
+if [ -d /usr/local/Cellar ]; then
+  n=$(ls /usr/local/Cellar 2>/dev/null | wc -l | tr -d ' ')
+  pk="${pk:+$pk, }$n (brew)"
+fi
+n=$(pkgutil --pkgs 2>/dev/null | wc -l | tr -d ' ')
+pk="${pk:+$pk, }$n (pkgutil)"
+
+# shell
+shname=$(basename "$SHELL")
+shver=$("$SHELL" --version 2>/dev/null | head -n1 | awk '{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+/){print $i; exit}}' | sed 's/(.*//')
+shell="$shname $shver"
+
+# terminal
+case "$TERM_PROGRAM" in
+  Apple_Terminal) term="Terminal.app (build $TERM_PROGRAM_VERSION)" ;;
+  iTerm.app)      term="iTerm2 $TERM_PROGRAM_VERSION" ;;
+  *)              term="$TERM" ;;
+esac
+
+# cpu
+cpu=$(sysctl -n machdep.cpu.brand_string | sed 's/  */ /g')
+cpu="$cpu ($(sysctl -n hw.ncpu))"
+
+# gpu
+gpus=$(system_profiler SPDisplaysDataType 2>/dev/null | awk -F': ' '/Chipset Model/ {print $2}')
+
+# ram
+total=$(sysctl -n hw.memsize)
+ps=$(vm_stat | awk '/page size of/ {print $8}')
+act=$(vm_stat | awk '/Pages active/ {gsub("\\.","",$3); print $3}')
+wir=$(vm_stat | awk '/Pages wired/ {gsub("\\.","",$4); print $4}')
+used=$(( (act + wir) * ps ))
+pct=$(( used * 100 / total ))
+mem=$(awk "BEGIN{printf \"%.2f GiB / %.2f GiB (%d%%)\", $used/1073741824, $total/1073741824, $pct}")
+
+# disk
+disk=$(df -h / | awk 'NR==2 {print $3" / "$2" ("$5")"}')
+
+# ---------- info satirlari ----------
+INFO=()
+row() { INFO[${#INFO[@]}]="$(col $1)$2${RS}  ${ARROW}  $3"; }
+
+len=$(( ${#user} + 1 + ${#host} ))
+INFO[0]="${BD}$(col 32)${user}${RS}${BD}@${RS}${BD}$(col 32)${host}${RS}"
+INFO[1]=$(printf '%*s' $len '' | tr ' ' '-')
+
+row 34    "$I_OS"   "$os"
+row 35    "$I_KRN"  "$kernel"
+row 31    "$I_INIT" "launchd"
+row 32    "$I_UP"   "$up"
+row 33    "$I_PKG"  "$pk"
+row 36    "$I_SH"   "$shell"
+row 34    "$I_DE"   "Aqua"
+row 35    "$I_TERM" "$term"
+row 32    "$I_CPU"  "$cpu"
+while IFS= read -r g; do
+  [ -n "$g" ] && row 33 "$I_GPU" "$g"
+done <<EOF
+$gpus
+EOF
+row 36    "$I_MEM"  "$mem"
+row "1;33" "$I_DISK" "$disk"
+
+INFO[${#INFO[@]}]=""
+bar=""
+for k in "1;30" 37 36 35 34 33 32 31; do bar="$bar$(col $k)$DOT${RS} "; done
+INFO[${#INFO[@]}]="$bar"
+
+# ---------- logo ----------
+LOGO=()
+i=0
+while IFS= read -r l; do LOGO[i]="$l"; i=$((i+1)); done <<'EOF'
+                 'c.
+              ,xNMM.
+            .OMMMMo
+            OMMM0,
+  .;loddo:' loolloddol;.
+cKMMMMMMMMMMNWMMMMMMMMMM0:
+.KMMMMMMMMMMMMMMMMMMMMMMMWd.
+XMMMMMMMMMMMMMMMMMMMMMMMX.
+;MMMMMMMMMMMMMMMMMMMMMMMM:
+:MMMMMMMMMMMMMMMMMMMMMMMM:
+.MMMMMMMMMMMMMMMMMMMMMMMMX.
+kMMMMMMMMMMMMMMMMMMMMMMMMWd.
+.XMMMMMMMMMMMMMMMMMMMMMMMMMMk
+.XMMMMMMMMMMMMMMMMMMMMMMMMK.
+  kMMMMMMMMMMMMMMMMMMMMMMd
+   ;KMMMMMMMWXXWMMMMMMMk.
+     .cooc,.    .,coo:.
+EOF
+
+logo_color() {
+  if   [ $1 -le 3 ];  then echo 32       # yesil
+  elif [ $1 -le 6 ];  then echo 33       # sari
+  elif [ $1 -le 9 ];  then echo "1;33"   # turuncu yerine parlak sari
+  elif [ $1 -le 11 ]; then echo 31       # kirmizi
+  elif [ $1 -le 13 ]; then echo 35       # mor
+  else                     echo 34       # mavi
+  fi
+}
+
+# yazdir
+n=${#LOGO[@]}; m=${#INFO[@]}
+off=1
+max=$n
+[ $((m + off)) -gt $max ] && max=$((m + off))
+
+echo
+for ((i=0; i<max; i++)); do
+  if [ $i -lt $n ]; then
+    printf '%s%-31s%s' "$(col $(logo_color $i))" "${LOGO[i]}" "$RS"
+  else
+    printf '%-31s' ""
+  fi
+  j=$((i - off))
+  [ $j -ge 0 ] && [ $j -lt $m ] && printf '  %s' "${INFO[j]}"
+  printf '\n'
+done
+echo
