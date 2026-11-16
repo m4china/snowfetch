@@ -22,7 +22,7 @@ RS="${ESC}[0m"
 BD="${ESC}[1m"
 col() { printf '%s[%sm' "$ESC" "$1"; }
 
-# Nerd Font ikonlari (bash 3.2'de \u yok, UTF-8 byte'lari ile)
+# Nerd Font icons (no such \u on bash 3.2, with UTF-8 bytes)
 I_OS=$'\xEF\x85\xB9'      # apple
 I_KRN=$'\xEF\x80\x93'     # cog
 I_INIT=$'\xEF\x80\x91'    # power_off
@@ -38,7 +38,7 @@ I_DISK=$'\xEF\x82\xA0'    # hdd
 ARROW=$'\xE2\x9E\x9C'     # ➜
 DOT=$'\xE2\x97\x8F'       # ●
 
-# bilgi toplama
+# getting info
 user=$(whoami)
 host=$(hostname -s)
 
@@ -54,7 +54,7 @@ up=""
 [ $h -gt 0 ] && up="$up$h hours, "
 up="$up$m mins"
 
-# paketler
+# packages
 pk=""
 if [ -d /opt/local/var/macports/software ]; then
   n=$(ls /opt/local/var/macports/software 2>/dev/null | wc -l | tr -d ' ')
@@ -72,7 +72,7 @@ shname=$(basename "$SHELL")
 shver=$("$SHELL" --version 2>/dev/null | head -n1 | awk '{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+\.[0-9]+/){print $i; exit}}' | sed 's/(.*//')
 shell="$shname $shver"
 
-# terminal
+# term
 case "$TERM_PROGRAM" in
   Apple_Terminal) term="Terminal.app (build $TERM_PROGRAM_VERSION)" ;;
   iTerm.app)      term="iTerm2 $TERM_PROGRAM_VERSION" ;;
@@ -98,7 +98,7 @@ mem=$(awk "BEGIN{printf \"%.2f GiB / %.2f GiB (%d%%)\", $used/1073741824, $total
 # disk
 disk=$(df -h / | awk 'NR==2 {print $3" / "$2" ("$5")"}')
 
-# ---------- info satirlari ----------
+# info lines
 INFO=()
 row() { INFO[${#INFO[@]}]="$(col $1)$2${RS}  ${ARROW}  $3"; }
 
@@ -128,7 +128,7 @@ bar=""
 for k in "1;30" 37 36 35 34 33 32 31; do bar="$bar$(col $k)$DOT${RS} "; done
 INFO[${#INFO[@]}]="$bar"
 
-# ---------- logo ----------
+# logo 
 LOGO=()
 i=0
 while IFS= read -r l; do LOGO[i]="$l"; i=$((i+1)); done <<'EOF'
@@ -161,7 +161,7 @@ logo_color() {
   fi
 }
 
-# yazdir
+# print
 n=${#LOGO[@]}; m=${#INFO[@]}
 off=1
 max=$n
