@@ -70,18 +70,18 @@ cd snowfetch
 
 Grant execution permissions to script by giving **snowfetch** executable flag:
 ```
-$ chmod +x snowfetch
+chmod +x snowfetch
 ```
 
 Finally, **just execute the script!**
 ```
-$ ./snowfetch
+./snowfetch
 ```
 
 **To install snowfetch system-wide:**
 Move **snowfetch** to `/usr/local/bin`.
 ```
-$ sudo mv /path/to/snowfetch /usr/local/bin
+sudo mv /path/to/snowfetch /usr/local/bin
 ```
 (Enter your password if asked.)
 
