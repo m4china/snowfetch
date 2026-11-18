@@ -28,6 +28,7 @@ I_KRN=$'\xEF\x80\x93'     # cog
 I_INIT=$'\xEF\x80\x91'    # power_off
 I_UP=$'\xEF\x80\x97'      # clock
 I_PKG=$'\xEF\x86\xB2'     # cube
+I_APP=$'\xEF\\x82\xBE'    # app
 I_SH=$'\xEF\x84\xA0'      # terminal
 I_DE=$'\xEF\x8B\x90'      # window
 I_TERM=$'\xEF\x84\x9C'    # keyboard
@@ -68,6 +69,11 @@ if [ -d /usr/local/Cellar ]; then
 fi
 n=$(pkgutil --pkgs 2>/dev/null | wc -l | tr -d ' ')
 pk="${pk:+$pk, }$n (pkgutil)"
+
+# app
+
+app_count=$(find /Applications -maxdepth 3 -name "*.app" -prune 2>/dev/null | wc -l | tr -d ' ')
+app="$app_count (.app)"
 
 # shell
 shname=$(basename "$SHELL")
@@ -113,6 +119,7 @@ row 35    "$I_KRN"  "$kernel"
 row 31    "$I_INIT" "$init"
 row 32    "$I_UP"   "$up"
 row 33    "$I_PKG"  "$pk"
+row 31    "$I_APP"  "$app"
 row 36    "$I_SH"   "$shell"
 row 34    "$I_DE"   "Aqua"
 row 35    "$I_TERM" "$term"
@@ -154,12 +161,12 @@ kMMMMMMMMMMMMMMMMMMMMMMMMWd.
 EOF
 
 logo_color() {
-  if   [ $1 -le 3 ];  then echo 32       # yesil
+  if   [ $1 -le 3 ];  then echo 32       # green
   elif [ $1 -le 6 ];  then echo 33       # sari
-  elif [ $1 -le 9 ];  then echo "1;33"   # turuncu yerine parlak sari
-  elif [ $1 -le 11 ]; then echo 31       # kirmizi
-  elif [ $1 -le 13 ]; then echo 35       # mor
-  else                     echo 34       # mavi
+  elif [ $1 -le 9 ];  then echo "1;33"   # light yellow cuz no orange on old terminal.app
+  elif [ $1 -le 11 ]; then echo 31       # red
+  elif [ $1 -le 13 ]; then echo 35       # purple
+  else                     echo 34       # blue
   fi
 }
 
