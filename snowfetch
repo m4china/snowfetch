@@ -23,19 +23,19 @@ BD="${ESC}[1m"
 col() { printf '%s[%sm' "$ESC" "$1"; }
 
 # Nerd Font icons (no such \u on bash 3.2, with UTF-8 bytes)
-I_OS=$'\xEF\x85\xB9'      # apple
-I_KRN=$'\xEF\x80\x93'     # cog
-I_INIT=$'\xEF\x80\x91'    # power_off
-I_UP=$'\xEF\x80\x97'      # clock
-I_PKG=$'\xEF\x86\xB2'     # cube
-I_APP=$'\xEF\x82\xBE'     # app
-I_SH=$'\xEF\x84\xA0'      # terminal
-I_DE=$'\xEF\x8B\x90'      # window
-I_TERM=$'\xEF\x84\x9C'    # keyboard
-I_CPU=$'\xEF\x8B\x9B'     # microchip
-I_GPU=$'\xEF\x84\x88'     # desktop
-I_MEM=$'\xEF\x87\x80'     # database
-I_DISK=$'\xEF\x82\xA0'    # hdd
+I_OS=$'\xEF\x85\xB9'      # apple logo
+I_KRN=$'\xEF\x80\x93'     # cog icon for kernel
+I_INIT=$'\xEF\x80\x91'    # power icon for init
+I_UP=$'\xEF\x80\x97'      # clock icon for uptime
+I_PKG=$'\xEF\x86\xB2'     # cube icon for packages
+I_APP=$'\xEF\x82\xBE'     # app store icon for apps
+I_SH=$'\xEF\x84\xA0'      # terminal icon for shell
+I_DE=$'\xEF\x8B\x90'      # window icon for aqua
+I_TERM=$'\xEF\x84\x9C'    # keyboard icon for terminal
+I_CPU=$'\xEF\x8B\x9B'     # microchip icon for cpu
+I_GPU=$'\xEF\x84\x88'     # desktop icon for gpu
+I_MEM=$'\xEF\x87\x80'     # database icon for ram
+I_DISK=$'\xEF\x82\xA0'    # hdd icon for storage
 ARROW=$'\xE2\x9E\x9C'     # ➜
 DOT=$'\xE2\x97\x8F'       # ●
 
@@ -71,7 +71,6 @@ n=$(pkgutil --pkgs 2>/dev/null | wc -l | tr -d ' ')
 pk="${pk:+$pk, }$n (pkgutil)"
 
 # app
-
 app_count=$(find /Applications -maxdepth 3 -name "*.app" -prune 2>/dev/null | wc -l | tr -d ' ')
 app="$app_count (.app)"
 
@@ -120,9 +119,9 @@ row 31    "$I_INIT" "$init"
 row 32    "$I_UP"   "$up"
 row 33    "$I_PKG"  "$pk"
 row 31    "$I_APP"  "$app"
-row 36    "$I_SH"   "$shell"
 row 34    "$I_DE"   "Aqua"
 row 35    "$I_TERM" "$term"
+row 36    "$I_SH"   "$shell"
 row 32    "$I_CPU"  "$cpu"
 while IFS= read -r g; do
   [ -n "$g" ] && row 33 "$I_GPU" "$g"
@@ -162,7 +161,7 @@ EOF
 
 logo_color() {
   if   [ $1 -le 3 ];  then echo 32       # green
-  elif [ $1 -le 6 ];  then echo 33       # sari
+  elif [ $1 -le 6 ];  then echo 33       # yellow
   elif [ $1 -le 9 ];  then echo "1;33"   # light yellow cuz no orange on old terminal.app
   elif [ $1 -le 11 ]; then echo 31       # red
   elif [ $1 -le 13 ]; then echo 35       # purple
